@@ -4,6 +4,7 @@ import Article from "./components/Article";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { useEffect, useState } from "react";
+import UserMenu from "./components/UserMenu";
 
 type Article = {
   title: string;
@@ -13,29 +14,43 @@ type Article = {
 function App() {
   const [articles, setArticles] = useState<Article[]>([]);
 
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+
+  const handleSelectedOptionChange = (newSelectedOption: string) => {
+    setSelectedOption(newSelectedOption);
+    retrieveArticles();
+  };
+
   const retrieveArticles = async () => {
-    const response = await fetch("http://localhost:8000/api/predict", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user: "",
-        userType: "Non-Logged",
-      }),
-    });
+    const userId =
+      selectedOption ??
+      "0adffd7450d3b9840d8c6215f0569ad942e782fb19b805367b02b709b73f42a1";
+
+    const response = await fetch(
+      `http://localhost:8000/api/recommend/${userId}`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
+    );
     const articles = (await response.json()) as Array<Article>;
     setArticles(articles);
   };
 
   useEffect(() => {
     retrieveArticles();
-  }, []);
+  }, [selectedOption]);
 
   return (
     <>
       <div>
+        <UserMenu
+          selectedOption={selectedOption}
+          onSelectedOptionChange={handleSelectedOptionChange}
+        />
         <Header />
         <Navbar />
         <div

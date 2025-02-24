@@ -1,4 +1,4 @@
-from app.controllers import predict_controller
+from app.controllers import recommend_controller
 
 def handle(app):
-  app.include_router(predict_controller.router)
+  app.include_router(recommend_controller.router)

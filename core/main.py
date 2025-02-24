@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.services.train_scheduler import train_scheduler
+from app.services.pipeline.train import Train
 import routes
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -17,7 +17,7 @@ def enableCors(app):
 
 app = FastAPI()
 enableCors(app)
-train_scheduler()
+Train().schedule()
 routes.handle(app)
 
 @app.get("/")
