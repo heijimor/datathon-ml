@@ -2,12 +2,76 @@ version: "3.8"
 
 services:
   api:
-    image: python:3.11
+    image: python:3.11-slim
     container_name: fastapi_app
     working_dir: /app
     volumes:
-      - .:/app
+      - ./api:/app
     ports:
       - "8000:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MONGO_HOST=mongodb
+      - MONGO_PORT=27017
+      - MONGO_DB=mydatabase
+    depends_on:
+      - redis
+      - mongodb
     command: >
-      sh -c "pip install -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+      sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+    networks:
+      - datathon_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+    networks:
+      - datathon_network
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27018:27017"
+    networks:
+      - datathon_network
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=mydatabase
+
+  airflow:
+    build:
+      context: .
+      dockerfile: ./train_service/Dockerfile
+    container_name: airflow
+    environment:
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+      - AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
+      - _AIRFLOW_WWW_USER_USERNAME=admin
+      - _AIRFLOW_WWW_USER_PASSWORD=admin
+    volumes:
+      - ./train_service/airflow/dags:/opt/airflow/dags
+      # - ./train_service/airflow/logs:/opt/airflow/logs/
+      - ./train_service/documentation:/usr/local/airflow/documentation
+      - ./train_service/data:/usr/local/airflow/data
+    ports:
+      - "8081:8080"
+    networks:
+      - datathon_network
+    depends_on:
+      - mongodb
+      - redis
+    entrypoint: >
+      sh -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && airflow webserver & airflow scheduler"
+
+networks:
+  datathon_network:
+    driver: bridge

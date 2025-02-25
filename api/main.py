@@ -1,7 +1,6 @@
 from fastapi import FastAPI
-from app.services.pipeline.train import Train
-import routes
 from fastapi.middleware.cors import CORSMiddleware
+import routes
 
 def enableCors(app):
     origins = [
@@ -17,7 +16,6 @@ def enableCors(app):
 
 app = FastAPI()
 enableCors(app)
-Train().schedule()
 routes.handle(app)
 
 @app.get("/")
