@@ -22,9 +22,7 @@ function App() {
   };
 
   const retrieveArticles = async () => {
-    const userId =
-      selectedOption ??
-      "0adffd7450d3b9840d8c6215f0569ad942e782fb19b805367b02b709b73f42a1";
+    const userId = selectedOption ?? "69817";
 
     const response = await fetch(
       `http://localhost:8000/api/recommend/${userId}`,

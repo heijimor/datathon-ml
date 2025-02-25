@@ -1,6 +1,12 @@
-1. Pré-processamento: Limpeza e formatação dos dados.
-2. Cálculo dos Scores: (Opcional) Calcular scores de recomendação antes ou durante o treinamento.
-3. Treinamento: Treinar o modelo (filtragem colaborativa, baseada em conteúdo ou híbrida).
-4. Gerar Modelo (PKL): Salvar o modelo treinado para uso posterior.
-5. Pré-processamento de Dados de Avaliação: Preparar dados para avaliação do modelo.
-6. Avaliar o Modelo: Avaliar a performance do modelo em dados não vistos.
+1. Estratégia Geral do Sistema
+   Teremos três abordagens principais para gerar recomendações:
+
+Usuários Logados
+
+Recomendações com base no histórico de leitura individual (filtragem colaborativa).
+Recomendações com base em perfis semelhantes (clustering ou nearest neighbors).
+Recomendações de notícias populares.
+Usuários Não Logados
+
+Recomendações baseadas em tendências e notícias mais lidas.
+Se houver informações como localização ou comportamento (scroll, tempo de leitura), podemos personalizar ainda mais.
