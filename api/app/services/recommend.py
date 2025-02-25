@@ -1,5 +1,8 @@
 import pandas as pd
 import pickle
+# from app.services.mongo_client import mongo_client
+from pymongo import MongoClient
+
 
 # def model_recommend(user_id: str) -> list[dict]:
 #   with open("./documentation/top_n_article_similarity.pkl", "rb") as f:
@@ -45,10 +48,6 @@ def model_recommend(user_id, user_type=None, top_n=5):
     cos_sim_df = pickle.load(f)
 
   df_interactions = pd.read_parquet("./app/services/interactions.parquet")
-
-  print(f"user_id type: {type(user_id)}")
-  print(f"cos_sim_df.index type: {type(cos_sim_df.index)}")
-  print(f"cos_sim_df.index: {cos_sim_df.index[:10]}")  # First 10 user IDs
   user_id = int(user_id)  # or str(user_id) depending on the format
 
   # Ensure user_id exists in the similarity matrix
@@ -71,19 +70,18 @@ def model_recommend(user_id, user_type=None, top_n=5):
       similar_user_articles = df_interactions[df_interactions['userId'] == similar_user]['page']
       recommended_articles.extend(similar_user_articles)
   
-  # Remove duplicates by converting to a set
-  recommended_articles = list(set(recommended_articles))
-  input_article_ids = recommended_articles[:top_n]
-
-  df_articles = pd.read_csv('./data/itens/itens/itens-parte1.csv')
+  # Remove duplicates and get top N recommendations
+  input_article_ids = list(set(recommended_articles))[:top_n]
   input_article_ids = [article_id.strip() for article_id in input_article_ids]
 
-  matched_articles = df_articles[df_articles['page'].isin(input_article_ids)]
-  # print(df_articles)
-  print(matched_articles)
-  # Create the response with url and title
-  response = [{"url": row["url"], "title": row["title"]} for _, row in matched_articles.iterrows()]
+  # Fetch matching articles from MongoDB using the singleton client
 
-  
+  mongo_client = MongoClient("mongodb://admin:adminpassword@mongodb:27017")  # Adjust the connection string as needed
+  db = mongo_client["mydatabase"]  # Replace with your database name
+  articles_collection = db["articles"]  # Replace with your collection name
+  # articles_collection = mongo_client.get_collection("articles")  # Reuse the same connection
+  print(input_article_ids)
+  response = list(articles_collection.find({"page": {"$in": input_article_ids}}, {"_id": 0, "url": 1, "title": 1}))
+
   # Return the top N recommended articles
   return response
