@@ -9,10 +9,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
   selectedOption,
   onSelectedOptionChange,
 }) => {
-  const [users, setUsers] = useState([
-    "103", // 0adffd7450d3b9840d8c6215f0569ad942e782fb19b805367b02b709b73f42a1
-    "69817", // a64a6e34e27d6f312c0d15c7deba04d3c3466741e329365ce9b33db90d7b1cd9
-  ]);
+  const [users] = useState(["103", "69817"]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     onSelectedOptionChange(event.target.value);

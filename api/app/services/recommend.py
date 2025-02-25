@@ -43,7 +43,7 @@ def get_intercalated_articles(user_article_history, loaded_similar_articles):
 
     return intercalated_recommendations
   
-def model_recommend(user_id, user_type=None, top_n=5):
+def model_recommend(user_id, user_type=None, top_n=6):
   with open("./app/services/cos_sim_matrix.pkl", "rb") as f:
     cos_sim_df = pickle.load(f)
 

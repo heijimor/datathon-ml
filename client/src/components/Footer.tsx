@@ -5,13 +5,13 @@ const Footer: React.FC = () => {
   return (
     <footer
       style={{
-        backgroundColor: "#333",
+        backgroundColor: "#0031ff",
         color: "white",
         padding: "10px",
         textAlign: "center",
       }}
     >
-      <p>&copy; 2025 Globo Clone - All rights reserved</p>
+      <p>2025 - Datathon ML</p>
     </footer>
   );
 };
