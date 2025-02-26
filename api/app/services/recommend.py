@@ -1,7 +1,9 @@
 import pandas as pd
 import pickle
 import joblib
-from pymongo import MongoClient
+from app.services.mongo_client import MongoDBClient
+
+mongo_client = MongoDBClient()
 
 def model_recommend(user_id, user_type=None, top_n=6):
     with open("./app/services/cos_sim_matrix.pkl", "rb") as f:
@@ -11,8 +13,7 @@ def model_recommend(user_id, user_type=None, top_n=6):
 
     if user_id in cos_sim_df.index:
         return recommend_for_logged_user(user_id, cos_sim_df, df_interactions, top_n)
-    return recommend_for_new_user(df_interactions)
-    # O K-Means pode ajudar a classificar novos usuários em clusters baseados em atributos demográficos ou comportamento inicial (ex: tempo na página, número de cliques, categoria de interesse).
+    return recommend_for_new_user(df_interactions, top_n)
 
 def recommend_for_logged_user(user_id, cos_sim_df, df_interactions, top_n):
     user_similarity = cos_sim_df.loc[user_id]
@@ -25,31 +26,25 @@ def recommend_for_logged_user(user_id, cos_sim_df, df_interactions, top_n):
     
     input_article_ids = list(set(recommended_articles))[:top_n]
     input_article_ids = [article_id.strip() for article_id in input_article_ids]
-    mongo_client = MongoClient("mongodb://admin:adminpassword@mongodb:27017")
-    db = mongo_client["mydatabase"]
-    articles_collection = db["articles"]
+    articles_collection = mongo_client.get_collection("articles")
     return list(articles_collection.find({"page": {"$in": input_article_ids}}, {"_id": 0, "url": 1, "title": 1}))
 
-def recommend_for_new_user(df_interactions):
+def recommend_for_new_user(df_interactions, top_n):
     kmeans = joblib.load("./app/services/kmeans_model.pkl")
-    df_users = pd.read_csv("./app/services/treino_parte1.csv")
-    # Identifica o cluster médio
+    df_users = pd.read_pickle("./app/services/usuarios_preprocessados.pkl")
     default_features = get_default_user_features(kmeans)
     default_cluster = kmeans.predict([default_features])[0]
     default_cluster = int(default_cluster)
-    print(f"Usuário novo pertence ao cluster {default_cluster}")
-    # Filtra usuários desse cluster
-    print(df_users.columns)
-
     similar_users = df_users[df_users["cluster"] == default_cluster]["userId"]
-    
-    # Pega os artigos mais vistos por usuários desse cluster
+    df_users["userId"] = df_users["userId"].astype(int)
+    df_interactions["userId"] = df_interactions["userId"].astype(int)
     popular_articles = df_interactions[df_interactions["userId"].isin(similar_users)]
     recommended_articles = popular_articles.groupby("page").size().reset_index(name="popularity")
     recommended_articles = recommended_articles.sort_values("popularity", ascending=False)
-    return recommended_articles["page"].head(5).tolist()
+    input_article_ids = [str(article_id).strip() for article_id in recommended_articles["page"].head(top_n).tolist()]
+    articles_collection = mongo_client.get_collection("articles")
+    return list(articles_collection.find({"page": {"$in": input_article_ids}}, {"_id": 0, "url": 1, "title": 1}))
 
 def get_default_user_features(kmeans):
-    # Retorna o centroide de um cluster médio (usuário típico)
     default_cluster_center = kmeans.cluster_centers_.mean(axis=0)
     return default_cluster_center

@@ -9,7 +9,12 @@ const UserMenu: React.FC<UserMenuProps> = ({
   selectedOption,
   onSelectedOptionChange,
 }) => {
-  const [users] = useState(["103", "69817", "698100"]);
+  const [users] = useState([
+    { label: "103 (Logado)", value: "103" },
+    { label: "54594 (Logado)", value: "54594" },
+    { label: "69817 (Não Logado)", value: "69817" },
+    { label: "698100 (Não Logado)", value: "698100" },
+  ]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     onSelectedOptionChange(event.target.value);
@@ -37,8 +42,8 @@ const UserMenu: React.FC<UserMenuProps> = ({
         }}
       >
         {users.map((user, index) => (
-          <option key={index} value={user}>
-            {user}
+          <option key={index} value={user.value}>
+            {user.label}
           </option>
         ))}
       </select>
