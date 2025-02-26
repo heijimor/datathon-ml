@@ -61,8 +61,9 @@ services:
       - _AIRFLOW_WWW_USER_PASSWORD=admin
     volumes:
       - ./train_service/airflow/dags:/opt/airflow/dags
-      # - ./train_service/airflow/logs:/opt/airflow/logs/
       - ./train_service/documentation:/usr/local/airflow/documentation
+      - ./train_service/artifacts:/usr/local/airflow/artifacts
+      - ./train_service/pipeline:/usr/local/airflow/pipeline
       - ./train_service/data:/usr/local/airflow/data
     ports:
       - "8081:8080"

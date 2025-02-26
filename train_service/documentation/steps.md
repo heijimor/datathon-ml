@@ -1,5 +1,6 @@
-1. Estratégia Geral do Sistema
-   Teremos três abordagens principais para gerar recomendações:
+Estratégia Geral do Sistema
+
+Teremos três abordagens principais para gerar recomendações:
 
 Usuários Logados
 

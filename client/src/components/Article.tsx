@@ -23,7 +23,7 @@ const Article: React.FC<ArticleCardProps> = ({ title, url }) => {
             height: "150px",
             borderRadius: "10px",
             textAlign: "center",
-            overflow: "hidden", // Evita que a imagem ultrapasse os cantos arredondados
+            overflow: "hidden",
           }}
         >
           <img
@@ -33,7 +33,7 @@ const Article: React.FC<ArticleCardProps> = ({ title, url }) => {
               width: "150px",
               height: "150px",
 
-              objectFit: "cover", // Garante que a imagem cubra o espaço sem distorcer
+              objectFit: "cover",
             }}
           />
         </div>

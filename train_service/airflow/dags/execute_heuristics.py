@@ -9,18 +9,17 @@ default_args = {
 }
 
 dag = DAG(
-    'execute_jupyter_notebook',
+    'execute_heuristics',
     default_args=default_args,
-    description='A simple DAG to execute a Jupyter Notebook',
-    schedule_interval='@daily',
+    description='A simple DAG to execute a some heuristics data',
+    schedule_interval=None,
     catchup=False,
 )
 
 run_notebook = PapermillOperator(
     task_id='run_notebook',
     input_nb='/usr/local/airflow/documentation/heuristics.ipynb',
-    output_nb='/usr/local/airflow/documentation/to/heuristics.ipynb',
-    parameters={"param1": "value1"},
+    output_nb='/usr/local/airflow/artifacts/notebooks/heuristics.ipynb',
     dag=dag,
 )
 
