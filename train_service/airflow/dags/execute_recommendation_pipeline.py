@@ -36,22 +36,50 @@ with DAG(
         }
     )
 
-    pre_processing_task = PythonOperator(
-        task_id='pre_processing',
+    pre_processing_users_task = PythonOperator(
+        task_id='pre_processing_users',
         python_callable=execute_notebook,
         op_kwargs={
-            'input_path': '/usr/local/airflow/pipeline/pre_processing.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing.ipynb'
+            'input_path': '/usr/local/airflow/pipeline/pre_processing_users.ipynb',
+            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing_users.ipynb'
+        }
+    )
+    
+    pre_processing_articles_task = PythonOperator(
+        task_id='pre_processing_articles',
+        python_callable=execute_notebook,
+        op_kwargs={
+            'input_path': '/usr/local/airflow/pipeline/pre_processing_articles.ipynb',
+            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing_articles.ipynb'
         }
     )
 
-    train_model_task = PythonOperator(
+    train_model = PythonOperator(
         task_id='train_model',
         python_callable=execute_notebook,
         op_kwargs={
-            'input_path': '/usr/local/airflow/pipeline/train.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/train.ipynb'
+            'input_path': '/usr/local/airflow/pipeline/train_model.ipynb',
+            'output_path': '/usr/local/airflow/artifacts/notebooks/train_model.ipynb'
         }
     )
 
-    perform_users_task >> perform_articles_task >> pre_processing_task >> train_model_task
+    pre_processing_validacao_task = PythonOperator(
+        task_id='pre_processing_validacao',
+        python_callable=execute_notebook,
+        op_kwargs={
+            'input_path': '/usr/local/airflow/pipeline/pre_processing_validacao.ipynb',
+            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing_validacao.ipynb'
+        }
+    )
+    
+    evaluate_task = PythonOperator(
+        task_id='evaluate',
+        python_callable=execute_notebook,
+        op_kwargs={
+            'input_path': '/usr/local/airflow/pipeline/evaluate.ipynb',
+            'output_path': '/usr/local/airflow/artifacts/notebooks/evaluate.ipynb'
+        }
+    )
+
+    perform_users_task >> perform_articles_task >> pre_processing_users_task >> pre_processing_articles_task >> train_model >> pre_processing_validacao_task >> evaluate_task
+    # pre_processing_users_task >> pre_processing_articles_task >> train_model >> pre_processing_validacao_task >> evaluate_task

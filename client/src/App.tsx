@@ -12,7 +12,9 @@ type Article = {
 
 function App() {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [selectedOption, setSelectedOption] = useState("103"); // Default value set
+  const [selectedOption, setSelectedOption] = useState(
+    "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735"
+  ); // Default value set
 
   const handleSelectedOptionChange = (newSelectedOption: string) => {
     setSelectedOption(newSelectedOption);

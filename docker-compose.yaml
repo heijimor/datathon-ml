@@ -16,20 +16,9 @@ services:
       - MONGO_PORT=27018
       - MONGO_DB=mydatabase
     depends_on:
-      - redis
       - mongodb
     command: >
       sh -c "pip install --no-cache-dir -r requirements.txt && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
-    networks:
-      - datathon_network
-
-  redis:
-    image: redis:7-alpine
-    container_name: redis_cache
-    restart: always
-    ports:
-      - "6379:6379"
-    command: redis-server --save 60 1 --loglevel warning
     networks:
       - datathon_network
 
@@ -59,6 +48,7 @@ services:
       - AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
+      - HOST_PATH=/usr/local/airflow
     volumes:
       - ./train_service/airflow/dags:/opt/airflow/dags
       - ./train_service/documentation:/usr/local/airflow/documentation
@@ -71,7 +61,12 @@ services:
       - datathon_network
     depends_on:
       - mongodb
-      - redis
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
     entrypoint: >
       sh -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && airflow webserver & airflow scheduler"
 
