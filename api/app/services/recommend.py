@@ -17,6 +17,9 @@ models_path = f"{root_path}/artifacts/models"
 
 with open(f"{models_path}/collaborative_model.pkl", "rb") as f:
     svd = pickle.load(f)
+    
+with open(f"{models_path}/content_model.pkl", "rb") as f:
+    content_sim = pickle.load(f)
 
 with open(f"{models_path}/user_item_matrix.pkl", "rb") as f:
     user_item_matrix = pickle.load(f)
@@ -40,8 +43,12 @@ def recommend_for_logged(user_id: str, top_n: int = 5):
 
 def recommend_for_non_logged(top_n: int = 5):
     """Recomenda itens com base na similaridade de conteúdo."""
-    recommendations = user_item_matrix.columns[:top_n].tolist()
-    return get_articles_by_recommendations(recommendations)
+    recommendations = np.argsort(content_sim[0])[::-1][:top_n]
+    articles_collection = mongo_client.get_collection("articles")
+    # Construir a consulta para encontrar os artigos pelos índices recomendados
+    query = {"id": {"$in": recommendations.tolist()}}
+    return articles_collection.find(query, {"_id": 0, "page": 1, "title": 1, "url": 1})
+    
 
 def get_articles_by_recommendations(recommendations):
     articles_collection = mongo_client.get_collection("articles")

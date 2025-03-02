@@ -2,7 +2,7 @@
 
 ## Descrição
 
-O **Datathon** é um sistema de recomendação desenvolvido para analisar e sugerir insights com base em dados. Ele combina uma API, um cliente web e um serviço de treinamento de modelos para oferecer recomendações personalizadas.
+O **Datathon** é um projeto de conclusão de curso da pós de ML da FIAP, que consiste em um sistema de recomendação desenvolvido para analisar e sugerir insights com base em dados. Ele combina uma API, um cliente web e um serviço de treinamento de modelos para oferecer recomendações personalizadas.
 
 ## Desenho de Arquitetura
 
