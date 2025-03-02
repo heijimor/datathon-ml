@@ -23,7 +23,7 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/perform_users.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/perform_users.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/perform_users.ipynb'
         }
     )
 
@@ -32,7 +32,7 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/perform_articles.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/perform_articles.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/perform_articles.ipynb'
         }
     )
 
@@ -41,7 +41,7 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/pre_processing_users.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing_users.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/pre_processing_users.ipynb'
         }
     )
     
@@ -50,7 +50,7 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/pre_processing_articles.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing_articles.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/pre_processing_articles.ipynb'
         }
     )
 
@@ -59,7 +59,7 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/train_model.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/train_model.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/train_model.ipynb'
         }
     )
 
@@ -68,7 +68,7 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/pre_processing_validacao.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/pre_processing_validacao.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/pre_processing_validacao.ipynb'
         }
     )
     
@@ -77,9 +77,8 @@ with DAG(
         python_callable=execute_notebook,
         op_kwargs={
             'input_path': '/usr/local/airflow/pipeline/evaluate.ipynb',
-            'output_path': '/usr/local/airflow/artifacts/notebooks/evaluate.ipynb'
+            'output_path': '/shared-artifacts/artifacts/notebooks/evaluate.ipynb'
         }
     )
 
     perform_users_task >> perform_articles_task >> pre_processing_users_task >> pre_processing_articles_task >> train_model >> pre_processing_validacao_task >> evaluate_task
-    # pre_processing_users_task >> pre_processing_articles_task >> train_model >> pre_processing_validacao_task >> evaluate_task

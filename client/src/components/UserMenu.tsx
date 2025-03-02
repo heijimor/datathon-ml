@@ -12,14 +12,6 @@ const UserMenu: React.FC<UserMenuProps> = ({
   const [users] = useState([
     {
       label:
-        "x196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735 (Não Logado)",
-      value: {
-        id: "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735",
-        type: "Non-Logged",
-      },
-    },
-    {
-      label:
         "ac28b85fb23da7b4c32ffb8adef475078382ee265f783e9001ac00f0c513ee3a (Logado)",
       value: {
         id: "ac28b85fb23da7b4c32ffb8adef475078382ee265f783e9001ac00f0c513ee3a",

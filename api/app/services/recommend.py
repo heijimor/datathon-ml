@@ -24,11 +24,9 @@ with open(f"{models_path}/user_item_matrix.pkl", "rb") as f:
 def recommend(user_id: str, user_type: str, top_n: int = 5):
     """Combina recomendações colaborativas e baseadas em conteúdo."""
     if user_id in user_item_matrix.index:
-        print('here collab')
         collab = recommend_for_logged(user_id, top_n)
         return list(collab)
     content = recommend_for_non_logged(top_n)
-    print('here CONTENT')
     return list(content)
 
 def recommend_for_logged(user_id: str, top_n: int = 5):

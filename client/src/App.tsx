@@ -13,7 +13,7 @@ type Article = {
 function App() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedOption, setSelectedOption] = useState({
-    id: "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735",
+    id: "ac28b85fb23da7b4c32ffb8adef475078382ee265f783e9001ac00f0c513ee3a",
     type: "Logged",
   });
 

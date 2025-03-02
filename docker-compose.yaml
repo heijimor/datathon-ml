@@ -57,8 +57,8 @@ services:
       - ./train_service/documentation:/usr/local/airflow/documentation
       - ./train_service/pipeline:/usr/local/airflow/pipeline
       - ./shared-files:/shared-artifacts
-      - ./shared-files/artifacts:/usr/local/airflow/artifacts
-      - ./shared-files/data:/usr/local/airflow/data
+      - ./shared-files/artifacts:/shared-artifacts/artifacts
+      - ./shared-files/data:/shared-artifacts/data
     ports:
       - "8081:8080"
     networks:
