@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
 interface UserMenuProps {
-  selectedOption: string;
-  onSelectedOptionChange: (newSelectedOption: string) => void;
+  selectedOption: string; // Specify the type of selectedOption
+  onSelectedOptionChange: (newSelectedOption: object) => void; // Specify the type of newSelectedOption
 }
 
 const UserMenu: React.FC<UserMenuProps> = ({
@@ -11,19 +11,38 @@ const UserMenu: React.FC<UserMenuProps> = ({
 }) => {
   const [users] = useState([
     {
-      label: "103 (Logado)",
-      value: "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735",
+      label:
+        "x196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735 (Não Logado)",
+      value: {
+        id: "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735",
+        type: "Non-Logged",
+      },
     },
     {
-      label: "54594 (Logado)",
-      value: "ac28b85fb23da7b4c32ffb8adef475078382ee265f783e9001ac00f0c513ee3a",
+      label:
+        "ac28b85fb23da7b4c32ffb8adef475078382ee265f783e9001ac00f0c513ee3a (Logado)",
+      value: {
+        id: "ac28b85fb23da7b4c32ffb8adef475078382ee265f783e9001ac00f0c513ee3a",
+        type: "Logged",
+      },
     },
-    { label: "69817 (Não Logado)", value: "69817" },
-    { label: "698100 (Não Logado)", value: "698100" },
+    {
+      label: "69817 (Não Logado)",
+      value: { id: "69817", type: "Non-Logged" },
+    },
+    {
+      label:
+        "a50f16d51820754a3db8281180950c3619c2b5a154926cb383de0fd023404756 (Logado)",
+      value: {
+        id: "a50f16d51820754a3db8281180950c3619c2b5a154926cb383de0fd023404756",
+        type: "Logged",
+      },
+    },
   ]);
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onSelectedOptionChange(event.target.value);
+    const selectedUser = JSON.parse(event.target.value);
+    onSelectedOptionChange(selectedUser); // Pass the entire object
   };
 
   return (
@@ -35,7 +54,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
       }}
     >
       <select
-        value={selectedOption}
+        value={JSON.stringify(selectedOption)} // Store as JSON string
         onChange={handleChange}
         style={{
           backgroundColor: "#333",
@@ -48,7 +67,7 @@ const UserMenu: React.FC<UserMenuProps> = ({
         }}
       >
         {users.map((user, index) => (
-          <option key={index} value={user.value}>
+          <option key={index} value={JSON.stringify(user.value)}>
             {user.label}
           </option>
         ))}

@@ -7,6 +7,7 @@ services:
     working_dir: /app
     volumes:
       - ./api:/app
+      - ./shared-files:/shared-artifacts
     ports:
       - "8000:8000"
     environment:
@@ -15,6 +16,7 @@ services:
       - MONGO_HOST=mongodb
       - MONGO_PORT=27018
       - MONGO_DB=mydatabase
+      - HOST_PATH=/shared-artifacts
     depends_on:
       - mongodb
     command: >
@@ -48,13 +50,15 @@ services:
       - AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
       - _AIRFLOW_WWW_USER_USERNAME=admin
       - _AIRFLOW_WWW_USER_PASSWORD=admin
-      - HOST_PATH=/usr/local/airflow
+      - HOST_PATH=/shared-artifacts
+      - MONGODB_CON=mongodb://admin:adminpassword@mongodb:27017
     volumes:
       - ./train_service/airflow/dags:/opt/airflow/dags
       - ./train_service/documentation:/usr/local/airflow/documentation
-      - ./train_service/artifacts:/usr/local/airflow/artifacts
       - ./train_service/pipeline:/usr/local/airflow/pipeline
-      - ./train_service/data:/usr/local/airflow/data
+      - ./shared-files:/shared-artifacts
+      - ./shared-files/artifacts:/usr/local/airflow/artifacts
+      - ./shared-files/data:/usr/local/airflow/data
     ports:
       - "8081:8080"
     networks:
@@ -69,6 +73,23 @@ services:
           memory: 4G
     entrypoint: >
       sh -c "airflow db init && airflow users create --username admin --password admin --firstname Admin --lastname User --role Admin --email admin@example.com && airflow webserver & airflow scheduler"
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    networks:
+      - datathon_network
+    depends_on:
+      - api
 
 networks:
   datathon_network:

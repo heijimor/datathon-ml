@@ -12,17 +12,19 @@ type Article = {
 
 function App() {
   const [articles, setArticles] = useState<Article[]>([]);
-  const [selectedOption, setSelectedOption] = useState(
-    "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735"
-  ); // Default value set
+  const [selectedOption, setSelectedOption] = useState({
+    id: "c196609069bdb5a080bdc889d71028674e580318f0bd6c1bcc869ee0e632a735",
+    type: "Logged",
+  });
 
-  const handleSelectedOptionChange = (newSelectedOption: string) => {
+  const handleSelectedOptionChange = (newSelectedOption) => {
+    console.log(newSelectedOption);
     setSelectedOption(newSelectedOption);
   };
 
-  const retrieveArticles = async (userId: string) => {
+  const retrieveArticles = async (user) => {
     const response = await fetch(
-      `http://localhost:8000/api/recommend/${userId}`,
+      `http://localhost:8000/api/recommend/${user.id}/type/${user.type}`,
       {
         method: "GET",
         headers: {

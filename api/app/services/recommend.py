@@ -5,44 +5,47 @@ from app.services.mongo_client import MongoDBClient
 
 mongo_client = MongoDBClient()
 
-def model_recommend(user_id, user_type=None, top_n=6):
-    with open("./app/services/cos_sim_matrix.pkl", "rb") as f:
-        cos_sim_df = pickle.load(f)
-    df_interactions = pd.read_parquet("./app/services/interactions.parquet")
-    user_id = user_id
+from fastapi import FastAPI, HTTPException
+import pandas as pd
+import numpy as np
+import pickle
+import os
+from app.services.mongo_client import MongoDBClient
 
-    if user_id in cos_sim_df.index:
-        return recommend_for_logged_user(user_id, cos_sim_df, df_interactions, top_n)
-    return recommend_for_new_user(df_interactions, top_n)
+root_path = os.getenv('HOST_PATH')
+models_path = f"{root_path}/artifacts/models"
 
-def recommend_for_logged_user(user_id, cos_sim_df, df_interactions, top_n):
-    user_similarity = cos_sim_df.loc[user_id]
-    similar_users = user_similarity.sort_values(ascending=False).index[1:top_n+1]
-    recommended_articles = []
+with open(f"{models_path}/collaborative_model.pkl", "rb") as f:
+    svd = pickle.load(f)
 
-    for similar_user in similar_users:
-        similar_user_articles = df_interactions[df_interactions['userId'] == similar_user]['page']
-        recommended_articles.extend(similar_user_articles)
-    
-    input_article_ids = list(set(recommended_articles))[:top_n]
-    input_article_ids = [article_id.strip() for article_id in input_article_ids]
+with open(f"{models_path}/user_item_matrix.pkl", "rb") as f:
+    user_item_matrix = pickle.load(f)
+
+def recommend(user_id: str, user_type: str, top_n: int = 5):
+    """Combina recomendações colaborativas e baseadas em conteúdo."""
+    if user_id in user_item_matrix.index:
+        print('here collab')
+        collab = recommend_for_logged(user_id, top_n)
+        return list(collab)
+    content = recommend_for_non_logged(top_n)
+    print('here CONTENT')
+    return list(content)
+
+def recommend_for_logged(user_id: str, top_n: int = 5):
+    """Recomenda itens baseados em interações de usuários semelhantes."""
+    user_vector = user_item_matrix.loc[user_id].values.reshape(1, -1)
+    user_factors = svd.transform(user_vector)  # Fatores do usuário
+    item_scores = svd.inverse_transform(user_factors)  # Prever interações futuras
+    top_items = np.argsort(item_scores[0])[::-1][:top_n]
+    recommendations = user_item_matrix.columns[top_items].tolist()
+    return get_articles_by_recommendations(recommendations)
+
+def recommend_for_non_logged(top_n: int = 5):
+    """Recomenda itens com base na similaridade de conteúdo."""
+    recommendations = user_item_matrix.columns[:top_n].tolist()
+    return get_articles_by_recommendations(recommendations)
+
+def get_articles_by_recommendations(recommendations):
     articles_collection = mongo_client.get_collection("articles")
-    return list(articles_collection.find({"page": {"$in": input_article_ids}}, {"_id": 0, "url": 1, "title": 1}))
-
-def recommend_for_new_user(df_interactions, top_n):
-    kmeans = joblib.load("./app/services/kmeans_model.pkl")
-    df_users = pd.read_pickle("./app/services/usuarios_preprocessados.pkl")
-    default_features = get_default_user_features(kmeans)
-    default_cluster = kmeans.predict([default_features])[0]
-    default_cluster = default_cluster
-    similar_users = df_users[df_users["cluster"] == default_cluster]["userId"]
-    popular_articles = df_interactions[df_interactions["userId"].isin(similar_users)]
-    recommended_articles = popular_articles.groupby("page").size().reset_index(name="popularity")
-    recommended_articles = recommended_articles.sort_values("popularity", ascending=False)
-    input_article_ids = [str(article_id).strip() for article_id in recommended_articles["page"].head(top_n).tolist()]
-    articles_collection = mongo_client.get_collection("articles")
-    return list(articles_collection.find({"page": {"$in": input_article_ids}}, {"_id": 0, "url": 1, "title": 1}))
-
-def get_default_user_features(kmeans):
-    default_cluster_center = kmeans.cluster_centers_.mean(axis=0)
-    return default_cluster_center
+    query = {"$in": recommendations}
+    return articles_collection.find({"page": query }, {"_id": 0, "url": 1, "title": 1})

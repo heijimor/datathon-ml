@@ -4,7 +4,7 @@ import routes
 
 def enableCors(app):
     origins = [
-        "http://localhost:5173",
+        "*",
     ]
     app.add_middleware(
         CORSMiddleware,
